@@ -1,4 +1,5 @@
 import { productById, type ProductId } from "./catalog";
+import { checkCode, discountCents } from "./discounts";
 
 // The cart lives in a cookie, so every shopper identity (every browser context, every test-hook
 // session) has its own cart and nothing is shared between them.
@@ -66,10 +67,12 @@ export interface PricedCart {
   lines: PricedLine[];
   count: number;
   subtotalCents: number;
+  /** The applied code's line, if any: e.g. "Discount (SAVE10)", 500. */
+  discount: { code: string; label: string; amountCents: number } | null;
   totalCents: number;
 }
 
-export function priceCart(lines: readonly CartLine[]): PricedCart {
+export function priceCart(lines: readonly CartLine[], code: string | null = null): PricedCart {
   const priced = lines.flatMap((l): PricedLine[] => {
     const product = productById(l.id);
     if (!product) return [];
@@ -77,10 +80,20 @@ export function priceCart(lines: readonly CartLine[]): PricedCart {
     return [{ id, name, color, unitCents: priceCents, qty: l.qty, totalCents: priceCents * l.qty }];
   });
   const subtotalCents = priced.reduce((sum, l) => sum + l.totalCents, 0);
+  const check = code === null ? null : checkCode(code);
+  const discount =
+    check?.ok && subtotalCents > 0
+      ? {
+          code: check.code,
+          label: `Discount (${check.code})`,
+          amountCents: discountCents(subtotalCents, check.percent),
+        }
+      : null;
   return {
     lines: priced,
     count: priced.reduce((sum, l) => sum + l.qty, 0),
     subtotalCents,
-    totalCents: subtotalCents,
+    discount,
+    totalCents: subtotalCents - (discount?.amountCents ?? 0),
   };
 }

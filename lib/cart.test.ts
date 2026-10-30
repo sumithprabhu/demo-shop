@@ -62,6 +62,19 @@ describe("priceCart", () => {
       ["Ceramic mug", 4000],
     ]);
     expect([cart.count, cart.subtotalCents, cart.totalCents]).toEqual([3, 7000, 7000]);
+    expect(cart.discount).toBeNull();
+  });
+
+  it("takes a valid code off the total, as its own line", () => {
+    const cart = priceCart(SEED_CART, "SAVE10");
+    expect(cart.discount).toEqual({ code: "SAVE10", label: "Discount (SAVE10)", amountCents: 500 });
+    expect([cart.subtotalCents, cart.totalCents]).toEqual([5000, 4500]);
+  });
+
+  it("ignores an expired or unknown code, and a code on an empty cart", () => {
+    expect(priceCart(SEED_CART, "OLD5").totalCents).toBe(5000);
+    expect(priceCart(SEED_CART, "NOPE").discount).toBeNull();
+    expect(priceCart([], "SAVE10").discount).toBeNull();
   });
 });
 

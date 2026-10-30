@@ -200,3 +200,17 @@ button:disabled {
 .toast-alert {
   background: #dc2626;
 }
+.discount {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+.discount input {
+  font: inherit;
+  padding: 6px 10px;
+  width: 180px;
+}
+.discount-line {
+  color: #15803d;
+}
