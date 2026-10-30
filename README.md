@@ -63,5 +63,5 @@ The body is the raw request body, e.g. `{"nonce":"…"}`. A bad signature or a s
 
 - **Production branch = `release`**, so `main` and every PR get _preview_ deployments. Intenzo compares a PR with the preview of its merge base, and never touches production.
 - **Settings → Git → "deployment_status Events": on.** Without it, GitHub never sends `deployment_status`, and Intenzo can't see the previews (DECISIONS 2026-10-30, T0.4).
-- **Environment variable `INTENZO_HOOK_SECRET`** for Preview (and Development). Don't set it for Production; the hooks refuse there anyway.
+- **Environment variable `INTENZO_HOOK_SECRET`** for Preview (and Development). Don't set it for Production; the hooks refuse there anyway. Vercel may treat the value as sensitive and never show it again, so put the same value in `.env.local` when you set it. A changed value applies only to deployments made after the change, so redeploy `main`.
 - **Deployment Protection stays on.** "Protection Bypass for Automation" gives the secret that tests and Intenzo use to reach previews.
