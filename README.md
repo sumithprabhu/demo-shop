@@ -51,6 +51,14 @@ X-Intenzo-Signature: sha256=<hex HMAC-SHA256(INTENZO_HOOK_SECRET, timestamp + bo
 
 The body is the raw request body, e.g. `{"nonce":"…"}`. A bad signature or a stale timestamp gets **401**. The hooks always refuse with **403** when `VERCEL_ENV=production`, signed or not, and answer **503** when no secret is configured. See `lib/hooks.ts`, the reference implementation.
 
+## Branches
+
+| Branch    | Deploys as     | Role                                                                        |
+| --------- | -------------- | --------------------------------------------------------------------------- |
+| `main`    | **Preview**    | the shop without discount codes, and the baseline Intenzo compares PRs with |
+| `release` | **Production** | Intenzo never touches it, and the test hooks refuse it (403)                |
+| `pr/*`    | Preview        | the demo PRs for ticket #42 (ROADMAP T0.6)                                  |
+
 ## Vercel setup
 
 - **Production branch = `release`**, so `main` and every PR get _preview_ deployments. Intenzo compares a PR with the preview of its merge base, and never touches production.
