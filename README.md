@@ -22,10 +22,11 @@ pnpm check                        # typecheck + lint + format + unit tests
 pnpm test:e2e                     # builds, starts on :3100 and runs the Playwright suite
 ```
 
-E2E against a deployment, for example `main`'s Vercel preview:
+E2E against a deployment, for example `main`'s Vercel preview. It's always at Vercel's branch alias
+`https://demo-shop-git-main-sumithprabhus-projects.vercel.app`:
 
 ```bash
-BASE_URL=https://demo-shop-git-main-….vercel.app pnpm test:e2e
+BASE_URL=https://demo-shop-git-main-sumithprabhus-projects.vercel.app pnpm test:e2e
 ```
 
 This needs that deployment's `INTENZO_HOOK_SECRET` and, because previews are protected, `VERCEL_AUTOMATION_BYPASS_SECRET`. Put both in `.env.local`.
