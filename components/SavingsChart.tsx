@@ -2,13 +2,17 @@
 
 import { useEffect, useRef } from "react";
 
-import type { PricedLine } from "../lib/cart";
-import { CHART, slicesOf } from "../lib/chart";
+import { CHART, slicesOf, type ChartInput } from "../lib/chart";
 import { formatCents } from "../lib/money";
 
-// A canvas donut of the order, fed by the line items. Its content is pixels only: nothing in the
-// DOM or the accessibility tree says what's in it, which is what makes it a ui_visual target.
-export function SavingsChart({ lines }: { lines: readonly PricedLine[] }) {
+export interface ChartItem extends ChartInput {
+  id: string;
+}
+
+// A canvas donut of the order, fed by the line items (a discount line is a slice too). Its
+// content is pixels only: nothing in the DOM or the accessibility tree says what's in it, which
+// is what makes it a ui_visual target.
+export function SavingsChart({ items }: { items: readonly ChartItem[] }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const ctx = canvas.current?.getContext("2d");
@@ -17,9 +21,7 @@ export function SavingsChart({ lines }: { lines: readonly PricedLine[] }) {
     const c = size / 2;
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, size, size);
-    const slices = slicesOf(
-      lines.map((l) => ({ label: l.name, color: l.color, cents: l.totalCents })),
-    );
+    const slices = slicesOf(items);
     for (const s of slices.length > 0 ? slices : [{ start: 0, end: 2 * Math.PI, color: empty }]) {
       ctx.beginPath();
       ctx.arc(c, c, outer, s.start, s.end);
@@ -28,7 +30,7 @@ export function SavingsChart({ lines }: { lines: readonly PricedLine[] }) {
       ctx.fillStyle = s.color;
       ctx.fill();
     }
-  }, [lines]);
+  }, [items]);
   return (
     <figure className="chart">
       <canvas
@@ -41,10 +43,10 @@ export function SavingsChart({ lines }: { lines: readonly PricedLine[] }) {
       />
       <figcaption>
         <ul className="legend">
-          {lines.map((l) => (
-            <li key={l.id}>
-              <span className="dot" style={{ background: l.color }} /> {l.name}{" "}
-              {formatCents(l.totalCents)}
+          {items.map((item) => (
+            <li key={item.id}>
+              <span className="dot" style={{ background: item.color }} /> {item.label}{" "}
+              {formatCents(item.cents)}
             </li>
           ))}
         </ul>

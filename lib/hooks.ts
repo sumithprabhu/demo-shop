@@ -1,6 +1,7 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
 import { CART_COOKIE } from "./cart";
+import { DISCOUNT_COOKIE } from "./discounts";
 
 // The Intenzo test hooks (ARCHITECTURE §21.1), the reference implementation: every call to the
 // session hook makes a brand-new shopper with a fresh cart, so each recording gets its own state.
@@ -68,7 +69,7 @@ function json(status: number, data: unknown, cookies: string[] = []): Response {
   return new Response(JSON.stringify(data), { status, headers });
 }
 
-/** A new shopper and a fresh cart (the seed cart: no cart cookie). */
+/** A new shopper and a fresh cart (the seed cart: no cart cookie, no discount code). */
 export async function handleSessionHook(request: Request, env: HookEnv): Promise<Response> {
   const result = await check(request, env);
   if (!result.ok) return json(result.status, { error: result.error });
@@ -76,13 +77,17 @@ export async function handleSessionHook(request: Request, env: HookEnv): Promise
   return json(200, { shopper }, [
     cookie(SHOPPER_COOKIE, shopper, WEEK_S),
     cookie(CART_COOKIE, "", 0),
+    cookie(DISCOUNT_COOKIE, "", 0),
   ]);
 }
 
-/** The calling shopper's cart back to a new shopper's (used when there's no session hook). */
+/** The calling shopper's cart back to a new shopper's, discount code included (used when there's no session hook). */
 export async function handleResetHook(request: Request, env: HookEnv): Promise<Response> {
   const result = await check(request, env);
   if (!result.ok) return json(result.status, { error: result.error });
   const shopper = /(?:^|;\s*)shopper=([^;]+)/.exec(request.headers.get("cookie") ?? "")?.[1];
-  return json(200, { reset: true, shopper: shopper ?? null }, [cookie(CART_COOKIE, "", 0)]);
+  return json(200, { reset: true, shopper: shopper ?? null }, [
+    cookie(CART_COOKIE, "", 0),
+    cookie(DISCOUNT_COOKIE, "", 0),
+  ]);
 }
