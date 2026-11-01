@@ -46,7 +46,7 @@ export function CartView({ initial }: { initial: CartLine[] }) {
               <button
                 type="button"
                 aria-label={`Increase quantity of ${l.name}`}
-                disabled={l.qty >= MAX_QTY}
+                disabled={l.qty > MAX_QTY}
                 onClick={() => change(setQuantity(lines, l.id, l.qty + 1))}
               >
                 +
