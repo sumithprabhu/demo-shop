@@ -138,6 +138,25 @@ button:disabled {
   padding: 4px 12px;
   font-size: 16px;
 }
+.discount {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+.discount input {
+  font: inherit;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  width: 160px;
+}
+.discount-error {
+  flex-basis: 100%;
+  margin: 0;
+  color: #b91c1c;
+}
 .summary {
   border: 1px solid #e5e7eb;
   border-radius: 12px;
