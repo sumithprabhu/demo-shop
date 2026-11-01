@@ -1,4 +1,5 @@
 import { productById, type ProductId } from "./catalog";
+import { formatCents } from "./money";
 
 // The cart lives in a cookie, so every shopper identity (every browser context, every test-hook
 // session) has its own cart and nothing is shared between them.
@@ -62,11 +63,27 @@ export interface PricedLine {
   totalCents: number;
 }
 
+/** Orders of $75.00 or more ship free; below that, shipping is $5.00. */
+export const FREE_SHIPPING_THRESHOLD_CENTS = 7500;
+export const SHIPPING_FEE_CENTS = 500;
+
 export interface PricedCart {
   lines: PricedLine[];
   count: number;
   subtotalCents: number;
+  shippingCents: number;
   totalCents: number;
+}
+
+/** $5.00 below the free-shipping threshold, free at $75.00 or more. */
+export function shippingCentsFor(subtotalCents: number): number {
+  return subtotalCents >= FREE_SHIPPING_THRESHOLD_CENTS ? 0 : SHIPPING_FEE_CENTS;
+}
+
+/** How much more is needed for free shipping, or the free-shipping note. */
+export function shippingMessage(subtotalCents: number): string {
+  if (subtotalCents >= FREE_SHIPPING_THRESHOLD_CENTS) return "You've got free shipping!";
+  return `Add ${formatCents(FREE_SHIPPING_THRESHOLD_CENTS - subtotalCents)} more for free shipping`;
 }
 
 export function priceCart(lines: readonly CartLine[]): PricedCart {
@@ -77,10 +94,12 @@ export function priceCart(lines: readonly CartLine[]): PricedCart {
     return [{ id, name, color, unitCents: priceCents, qty: l.qty, totalCents: priceCents * l.qty }];
   });
   const subtotalCents = priced.reduce((sum, l) => sum + l.totalCents, 0);
+  const shippingCents = shippingCentsFor(subtotalCents);
   return {
     lines: priced,
     count: priced.reduce((sum, l) => sum + l.qty, 0),
     subtotalCents,
-    totalCents: subtotalCents,
+    shippingCents,
+    totalCents: subtotalCents + shippingCents,
   };
 }

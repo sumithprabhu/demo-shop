@@ -1,12 +1,20 @@
 import { describe, expect, it } from "vitest";
 
-import { addLine, parseCart, priceCart, SEED_CART, serializeCart, setQuantity } from "./cart";
+import {
+  addLine,
+  parseCart,
+  priceCart,
+  SEED_CART,
+  serializeCart,
+  setQuantity,
+  shippingMessage,
+} from "./cart";
 import { formatCents } from "./money";
 
 describe("the cart cookie", () => {
   it("gives a new shopper (no cookie) the $50.00 seed cart", () => {
     expect(parseCart(undefined)).toEqual(SEED_CART);
-    expect(priceCart(parseCart(undefined)).totalCents).toBe(5000);
+    expect(priceCart(parseCart(undefined)).subtotalCents).toBe(5000);
   });
 
   it("round-trips lines, and an empty cart", () => {
@@ -61,7 +69,39 @@ describe("priceCart", () => {
       ["Canvas tote bag", 3000],
       ["Ceramic mug", 4000],
     ]);
-    expect([cart.count, cart.subtotalCents, cart.totalCents]).toEqual([3, 7000, 7000]);
+    expect([cart.count, cart.subtotalCents, cart.shippingCents, cart.totalCents]).toEqual([
+      3, 7000, 500, 7500,
+    ]);
+  });
+});
+
+describe("free shipping", () => {
+  it("charges $5.00 below $75.00: $55.00 total for the $50.00 seed cart", () => {
+    const cart = priceCart(SEED_CART);
+    expect([cart.subtotalCents, cart.shippingCents, cart.totalCents]).toEqual([5000, 500, 5500]);
+  });
+
+  it("ships free at exactly $75.00", () => {
+    const cart = priceCart([{ id: "apron", qty: 3 }]);
+    expect([cart.subtotalCents, cart.shippingCents, cart.totalCents]).toEqual([7500, 0, 7500]);
+  });
+
+  it("ships free above $75.00, with the total just the subtotal", () => {
+    const cart = priceCart([
+      { id: "tote", qty: 2 },
+      { id: "mug", qty: 1 },
+    ]);
+    expect([cart.subtotalCents, cart.shippingCents, cart.totalCents]).toEqual([8000, 0, 8000]);
+  });
+
+  it("says how much more is needed below $75.00", () => {
+    expect(shippingMessage(5000)).toBe("Add $25.00 more for free shipping");
+    expect(shippingMessage(7000)).toBe("Add $5.00 more for free shipping");
+  });
+
+  it("celebrates free shipping at $75.00 or more", () => {
+    expect(shippingMessage(7500)).toBe("You've got free shipping!");
+    expect(shippingMessage(8000)).toBe("You've got free shipping!");
   });
 });
 

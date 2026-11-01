@@ -176,6 +176,11 @@ button:disabled {
   height: 12px;
   border-radius: 50%;
 }
+.shipping-note {
+  margin: 8px 0 0;
+  font-size: 16px;
+  color: #4b5563;
+}
 .summary .button {
   width: 100%;
   text-align: center;

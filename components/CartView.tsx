@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 
 import { saveCart } from "../app/actions";
-import { priceCart, setQuantity, type CartLine } from "../lib/cart";
+import { priceCart, setQuantity, shippingMessage, type CartLine } from "../lib/cart";
 import { formatCents } from "../lib/money";
 import { SavingsChart } from "./SavingsChart";
 
@@ -68,10 +68,19 @@ export function CartView({ initial }: { initial: CartLine[] }) {
           <span>Subtotal</span>
           <span data-testid="subtotal">{formatCents(cart.subtotalCents)}</span>
         </div>
+        <div className="row">
+          <span>Shipping</span>
+          <span data-testid="shipping">
+            {cart.shippingCents === 0 ? "Free" : formatCents(cart.shippingCents)}
+          </span>
+        </div>
         <div className="row total">
           <span>Total</span>
           <span data-testid="total">{formatCents(cart.totalCents)}</span>
         </div>
+        <p className="shipping-note" data-testid="shipping-note">
+          {shippingMessage(cart.subtotalCents)}
+        </p>
         <SavingsChart lines={cart.lines} />
         <Link href="/checkout" className="button">
           Checkout
