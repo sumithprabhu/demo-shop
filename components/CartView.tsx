@@ -25,7 +25,7 @@ export function CartView({
   const [, startTransition] = useTransition();
   const toast = useToast();
   const cart = priceCart(lines, code);
-  const total = useMemo(() => priceCart(lines, code).totalCents, [lines]);
+  const total = useMemo(() => priceCart(lines, code).totalCents, [lines, code]);
   const chartItems = useMemo<ChartItem[]>(
     () => [
       ...cart.lines.map((l) => ({ id: l.id, label: l.name, color: l.color, cents: l.totalCents })),
