@@ -78,7 +78,7 @@ export function removeLine(
 export function restoreLine(lines: readonly CartLine[], removed: RemovedLine): CartLine[] {
   if (lines.some((l) => l.id === removed.id)) return [...lines];
   const index = Math.max(0, Math.min(removed.index, lines.length));
-  return [...lines.slice(0, index), { id: removed.id, qty: removed.qty }, ...lines.slice(index)];
+  return [...lines.slice(0, index), { id: removed.id, qty: 1 }, ...lines.slice(index)];
 }
 
 export interface PricedLine {
