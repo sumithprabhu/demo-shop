@@ -65,12 +65,13 @@ jobs:
         working-directory: repo
         run: pnpm install --ignore-scripts --frozen-lockfile
 
-      # Muse Code is a CLI (DECISIONS 2026-10-30); its sandbox needs bubblewrap on Linux.
+      # Muse Code is a CLI (DECISIONS 2026-10-30); its sandbox needs bubblewrap on Linux. The
+      # installer is a bash script: Ubuntu's sh (dash) has no pipefail.
       - name: Install Muse Code
         if: steps.check.outputs.ok == 'true'
         run: |
           sudo apt-get install -y --no-install-recommends bubblewrap
-          curl -fsSL https://dev.meta.ai/install.sh | MUSE_NO_MODIFY_PATH=1 sh
+          curl -fsSL https://dev.meta.ai/install.sh | MUSE_NO_MODIFY_PATH=1 bash
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Fix
