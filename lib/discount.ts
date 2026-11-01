@@ -2,7 +2,7 @@
 
 export const DISCOUNT_COLOR = "#16a34a";
 
-export const EXPIRED_MESSAGE = "This code has expired";
+export const EXPIRED_MESSAGE = "This code is not valid";
 export const INVALID_MESSAGE = "Invalid code";
 
 /** Uppercase and trimmed, so " save10 " still works. */
