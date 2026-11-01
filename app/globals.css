@@ -196,6 +196,15 @@ button:disabled {
   border-radius: 8px;
   color: #ffffff;
   background: #16a34a;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.toast button {
+  background: #ffffff;
+  color: #111827;
+  padding: 2px 12px;
+  font-size: 16px;
 }
 .toast-alert {
   background: #dc2626;

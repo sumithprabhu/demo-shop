@@ -53,6 +53,34 @@ export function setQuantity(lines: readonly CartLine[], id: ProductId, qty: numb
   return lines.map((l) => (l.id === id ? { ...l, qty: Math.min(qty, MAX_QTY) } : l));
 }
 
+/** A removed line, kept so "Undo" can put it back where it was. */
+export interface RemovedLine {
+  id: ProductId;
+  qty: number;
+  index: number;
+}
+
+/** Removes a line, keeping what "Undo" needs to restore it. Unknown id: no change. */
+export function removeLine(
+  lines: readonly CartLine[],
+  id: ProductId,
+): { next: CartLine[]; removed: RemovedLine | null } {
+  const index = lines.findIndex((l) => l.id === id);
+  if (index < 0) return { next: [...lines], removed: null };
+  const line = lines[index]!;
+  return {
+    next: [...lines.slice(0, index), ...lines.slice(index + 1)],
+    removed: { id: line.id, qty: line.qty, index },
+  };
+}
+
+/** Puts a removed line back at its original position with its quantity. */
+export function restoreLine(lines: readonly CartLine[], removed: RemovedLine): CartLine[] {
+  if (lines.some((l) => l.id === removed.id)) return [...lines];
+  const index = Math.max(0, Math.min(removed.index, lines.length));
+  return [...lines.slice(0, index), { id: removed.id, qty: removed.qty }, ...lines.slice(index)];
+}
+
 export interface PricedLine {
   id: ProductId;
   name: string;

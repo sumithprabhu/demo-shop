@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { addLine, parseCart, priceCart, SEED_CART, serializeCart, setQuantity } from "./cart";
+import {
+  addLine,
+  parseCart,
+  priceCart,
+  removeLine,
+  restoreLine,
+  SEED_CART,
+  serializeCart,
+  setQuantity,
+} from "./cart";
 import { formatCents } from "./money";
 
 describe("the cart cookie", () => {
@@ -48,6 +57,36 @@ describe("cart changes", () => {
     ]);
     expect(setQuantity(SEED_CART, "mug", 0)).toEqual([{ id: "tote", qty: 1 }]);
     expect(setQuantity(SEED_CART, "mug", 12)[1]).toEqual({ id: "mug", qty: 9 });
+  });
+});
+
+describe("undo remove", () => {
+  it("removes a line and keeps its quantity and position for Undo", () => {
+    const { next, removed } = removeLine(
+      [
+        { id: "tote", qty: 1 },
+        { id: "mug", qty: 3 },
+      ] as const,
+      "mug",
+    );
+    expect(next).toEqual([{ id: "tote", qty: 1 }]);
+    expect(removed).toEqual({ id: "mug", qty: 3, index: 1 });
+  });
+
+  it("restores the line with its quantity, and the totals with it", () => {
+    const before = [
+      { id: "tote", qty: 1 },
+      { id: "mug", qty: 3 },
+    ] as const;
+    const { next, removed } = removeLine(before, "mug");
+    const restored = restoreLine(next, removed!);
+    expect(restored).toEqual(before);
+    expect(priceCart(restored)).toEqual(priceCart(before));
+  });
+
+  it("leaves the cart alone for an unknown id, or an Undo for a line that's back", () => {
+    expect(removeLine(SEED_CART, "apron")).toEqual({ next: [...SEED_CART], removed: null });
+    expect(restoreLine(SEED_CART, { id: "mug", qty: 2, index: 0 })).toEqual([...SEED_CART]);
   });
 });
 

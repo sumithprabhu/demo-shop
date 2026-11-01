@@ -1,22 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 
 import { saveCart } from "../app/actions";
-import { priceCart, setQuantity, type CartLine } from "../lib/cart";
+import { priceCart, removeLine, restoreLine, setQuantity, type CartLine } from "../lib/cart";
 import { formatCents } from "../lib/money";
 import { SavingsChart } from "./SavingsChart";
+import { useToast } from "./Toasts";
 
 // The cart updates at once from local state (lines, totals and the chart), and saves to the
 // cart cookie in the background, so a reload shows the same cart.
 export function CartView({ initial }: { initial: CartLine[] }) {
   const [lines, setLines] = useState(initial);
   const [, startTransition] = useTransition();
+  const toast = useToast();
+  // The latest lines for the toast's Undo button, which outlives this render's closure.
+  const linesRef = useRef(lines);
+  linesRef.current = lines;
   const cart = priceCart(lines);
   const change = (next: CartLine[]) => {
     setLines(next);
     startTransition(() => saveCart(next));
+  };
+  const remove = (id: CartLine["id"], name: string) => {
+    const { next, removed } = removeLine(lines, id);
+    if (!removed) return;
+    change(next);
+    toast({
+      text: `Removed ${name}`,
+      kind: "status",
+      action: {
+        label: "Undo",
+        onAction: () => change(restoreLine(linesRef.current, removed)),
+      },
+    });
   };
 
   if (cart.lines.length === 0) {
@@ -56,7 +74,7 @@ export function CartView({ initial }: { initial: CartLine[] }) {
               type="button"
               className="remove"
               aria-label={`Remove ${l.name}`}
-              onClick={() => change(setQuantity(lines, l.id, 0))}
+              onClick={() => remove(l.id, l.name)}
             >
               Remove
             </button>
