@@ -19,7 +19,6 @@ export function CartView({ initial }: { initial: CartLine[] }) {
   const [error, setError] = useState<string | null>(null);
   const cart = priceCart(lines);
   const discountCents = applied ? discountCentsFor(applied, cart.subtotalCents) : 0;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const totalCents = useMemo(() => cart.subtotalCents - discountCents, [lines]);
   const change = (next: CartLine[]) => {
     setLines(next);
