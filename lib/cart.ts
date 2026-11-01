@@ -77,12 +77,12 @@ export interface PricedCart {
 
 /** $5.00 below the free-shipping threshold, free at $75.00 or more. */
 export function shippingCentsFor(subtotalCents: number): number {
-  return subtotalCents >= FREE_SHIPPING_THRESHOLD_CENTS ? 0 : SHIPPING_FEE_CENTS;
+  return subtotalCents > FREE_SHIPPING_THRESHOLD_CENTS ? 0 : SHIPPING_FEE_CENTS;
 }
 
 /** How much more is needed for free shipping, or the free-shipping note. */
 export function shippingMessage(subtotalCents: number): string {
-  if (subtotalCents >= FREE_SHIPPING_THRESHOLD_CENTS) return "You've got free shipping!";
+  if (subtotalCents > FREE_SHIPPING_THRESHOLD_CENTS) return "You've got free shipping!";
   return `Add ${formatCents(FREE_SHIPPING_THRESHOLD_CENTS - subtotalCents)} more for free shipping`;
 }
 
