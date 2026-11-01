@@ -83,7 +83,7 @@ export function CartView({ initial }: { initial: CartLine[] }) {
         </p>
         <SavingsChart lines={cart.lines} />
         <Link href="/checkout" className="button">
-          Checkout
+          Place order
         </Link>
       </section>
     </div>
