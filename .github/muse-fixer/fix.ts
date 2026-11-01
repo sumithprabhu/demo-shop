@@ -111,11 +111,31 @@ export const MAX_STEPS = 20;
 /** Paths a fix must never touch. */
 const FORBIDDEN = /^(\.github\/|package\.json$|pnpm-lock\.yaml$|package-lock\.json$|yarn\.lock$)/;
 
-/** Has Muse Code fix the checkout; returns the files it changed. */
+/**
+ * What a run cost and which model ran it: the run.usage and run.model.configured events of Muse
+ * Code's JSONL output, as they come (they carry counts and ids, not code), for the job's log.
+ */
+export function usageOf(jsonl: string): string[] {
+  const kept: string[] = [];
+  for (const line of jsonl.split("\n")) {
+    if (!line.includes('"run.usage"') && !line.includes('"run.model.configured"')) continue;
+    try {
+      const event = JSON.parse(line) as { payload_type?: string; payload?: unknown };
+      if (event.payload_type === "run.usage" || event.payload_type === "run.model.configured") {
+        kept.push(`${event.payload_type} ${JSON.stringify(event.payload).slice(0, 400)}`);
+      }
+    } catch {
+      // Not an event line.
+    }
+  }
+  return kept;
+}
+
+/** Has Muse Code fix the checkout; returns the files it changed and its usage events. */
 export function fix(
   payload: FixerPayload,
   options: { repo: string; exec?: Exec; maxSteps?: number },
-): string[] {
+): { changed: string[]; usage: string[] } {
   const run = options.exec ?? exec;
   const muse = run(
     "muse",
@@ -129,8 +149,11 @@ export function fix(
     ],
     { cwd: options.repo },
   );
+  const usage = usageOf(muse.stdout);
   if (muse.status !== 0) {
-    throw new Error(`Muse Code exited with ${muse.status}: ${muse.stderr.slice(-400)}`);
+    throw new Error(
+      `Muse Code exited with ${muse.status}: ${muse.stderr.slice(-400)}${usage.length ? `\n${usage.join("\n")}` : ""}`,
+    );
   }
   const status = run("git", ["status", "--porcelain", "--untracked-files=all"], {
     cwd: options.repo,
@@ -142,7 +165,7 @@ export function fix(
   if (changed.length === 0) throw new Error("Muse Code changed nothing");
   const forbidden = changed.filter((f) => FORBIDDEN.test(f));
   if (forbidden.length) throw new Error(`the fix touches ${forbidden.join(", ")}: refused`);
-  return changed;
+  return { changed, usage };
 }
 
 /** Commits the checkout's changes and pushes them to the PR's branch with the App's token. */
@@ -228,7 +251,8 @@ async function main(): Promise<number> {
   }
   const payload = JSON.parse(readFileSync(requestFile(), "utf8")) as FixerPayload;
   if (command === "fix") {
-    const changed = fix(payload, { repo: arg("repo") });
+    const { changed, usage } = fix(payload, { repo: arg("repo") });
+    for (const line of usage) console.log(`Muse Code ${line}`);
     console.log(`Muse Code changed ${changed.join(", ")}.`);
     return 0;
   }
