@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
 import { saveCart } from "../app/actions";
 import { priceCart, setQuantity, type CartLine } from "../lib/cart";
@@ -19,7 +19,8 @@ export function CartView({ initial }: { initial: CartLine[] }) {
   const [error, setError] = useState<string | null>(null);
   const cart = priceCart(lines);
   const discountCents = applied ? discountCentsFor(applied, cart.subtotalCents) : 0;
-  const totalCents = cart.subtotalCents - discountCents;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const totalCents = useMemo(() => cart.subtotalCents - discountCents, [lines]);
   const change = (next: CartLine[]) => {
     setLines(next);
     startTransition(() => saveCart(next));
