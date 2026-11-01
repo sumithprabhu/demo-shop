@@ -27,8 +27,8 @@ describe("the cart cookie", () => {
     },
   );
 
-  it("caps quantities at 9", () => {
-    expect(parseCart("mug:40")).toEqual([{ id: "mug", qty: 9 }]);
+  it("caps quantities at 5", () => {
+    expect(parseCart("mug:40")).toEqual([{ id: "mug", qty: 5 }]);
   });
 });
 
@@ -41,13 +41,17 @@ describe("cart changes", () => {
     ]);
   });
 
+  it("stays at 5 when adding to a line already at 5", () => {
+    expect(addLine([{ id: "mug", qty: 5 }], "mug")).toEqual([{ id: "mug", qty: 5 }]);
+  });
+
   it("sets quantities, and removes a line at zero", () => {
     expect(setQuantity(SEED_CART, "mug", 3)).toEqual([
       { id: "tote", qty: 1 },
       { id: "mug", qty: 3 },
     ]);
     expect(setQuantity(SEED_CART, "mug", 0)).toEqual([{ id: "tote", qty: 1 }]);
-    expect(setQuantity(SEED_CART, "mug", 12)[1]).toEqual({ id: "mug", qty: 9 });
+    expect(setQuantity(SEED_CART, "mug", 12)[1]).toEqual({ id: "mug", qty: 5 });
   });
 });
 

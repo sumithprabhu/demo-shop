@@ -4,7 +4,7 @@ import { productById, type ProductId } from "./catalog";
 // session) has its own cart and nothing is shared between them.
 
 export const CART_COOKIE = "cart";
-export const MAX_QTY = 9;
+export const MAX_QTY = 5;
 
 export interface CartLine {
   id: ProductId;

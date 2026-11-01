@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 
 import { saveCart } from "../app/actions";
-import { priceCart, setQuantity, type CartLine } from "../lib/cart";
+import { MAX_QTY, priceCart, setQuantity, type CartLine } from "../lib/cart";
 import { formatCents } from "../lib/money";
 import { SavingsChart } from "./SavingsChart";
 
@@ -46,11 +46,13 @@ export function CartView({ initial }: { initial: CartLine[] }) {
               <button
                 type="button"
                 aria-label={`Increase quantity of ${l.name}`}
+                disabled={l.qty >= MAX_QTY}
                 onClick={() => change(setQuantity(lines, l.id, l.qty + 1))}
               >
                 +
               </button>
             </span>
+            {l.qty >= MAX_QTY && <span className="limit-note">Limit 5 per item</span>}
             <span className="price">{formatCents(l.totalCents)}</span>
             <button
               type="button"
