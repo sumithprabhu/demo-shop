@@ -14,6 +14,8 @@ export function CartView({ initial }: { initial: CartLine[] }) {
   const [lines, setLines] = useState(initial);
   const [, startTransition] = useTransition();
   const cart = priceCart(lines);
+  // The apron's line, for its limit note.
+  const apron = lines.find((l) => l.id === "apron")!.qty;
   const change = (next: CartLine[]) => {
     setLines(next);
     startTransition(() => saveCart(next));
