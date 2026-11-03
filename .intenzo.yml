@@ -22,7 +22,7 @@ judge:
 policy:
   run_on: [ready_for_review, preview_ready]
   inconclusive_conclusion: neutral
-  approvers: ["sumithprabhu"]
+  approvers: ["sumithprabhu", "0xNilesh"] # either can approve; agreed with Sumith 2026-11-03
   agent_handle: "@intenzo-fixer"
   agent_trigger: button
   max_agent_attempts: 3
