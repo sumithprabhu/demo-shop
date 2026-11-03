@@ -7,14 +7,14 @@ const MUG = "#f59e0b";
 const APRON = "#8b5cf6";
 
 test.describe("a new shopper's cart", () => {
-  test("holds the tote and the mug: $50.00, with a Checkout button", async ({ page }) => {
+  test("holds the tote and the mug: $50.00, with a Continue button", async ({ page }) => {
     await page.goto("/cart");
     await expect(page.getByRole("list", { name: "Cart items" }).getByRole("listitem")).toHaveCount(
       2,
     );
     await expect(page.getByTestId("subtotal")).toHaveText("$50.00");
     await expect(page.getByTestId("total")).toHaveText("$50.00");
-    await expect(page.getByRole("link", { name: "Checkout" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Continue" })).toBeVisible();
     await expect(page.getByText("Guest")).toBeVisible();
   });
 
@@ -62,7 +62,7 @@ test("removing every line empties the cart, and it stays empty", async ({ page }
 
 test("checkout is a placeholder that charges nothing", async ({ page }) => {
   await page.goto("/cart");
-  await page.getByRole("link", { name: "Checkout" }).click();
+  await page.getByRole("link", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: "Checkout" })).toBeVisible();
   await expect(page.getByText("nothing is ever charged")).toBeVisible();
 });

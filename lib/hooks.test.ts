@@ -44,6 +44,7 @@ describe("the session hook", () => {
     expect(res.headers.getSetCookie()).toEqual([
       "shopper=shopper-abc123; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800",
       "cart=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0",
+      "discount=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0",
     ]);
   });
 
@@ -113,7 +114,7 @@ describe("the session hook", () => {
 });
 
 describe("the reset hook", () => {
-  it("clears the calling shopper's cart and keeps the shopper", async () => {
+  it("clears the calling shopper's cart and discount code, and keeps the shopper", async () => {
     const res = await handleResetHook(
       hookRequest("/api/test/reset", { cookie: "shopper=shopper-abc123; cart=pin:3" }),
       env(),
@@ -122,6 +123,7 @@ describe("the reset hook", () => {
     expect(await res.json()).toEqual({ reset: true, shopper: "shopper-abc123" });
     expect(res.headers.getSetCookie()).toEqual([
       "cart=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0",
+      "discount=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0",
     ]);
   });
 
