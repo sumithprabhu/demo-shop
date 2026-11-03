@@ -5,7 +5,7 @@ import { CartView } from "../../components/CartView";
 import { CART_COOKIE, parseCart } from "../../lib/cart";
 import { DISCOUNT_COOKIE, savedCode } from "../../lib/discounts";
 
-export const metadata: Metadata = { title: "Cart · Demo shop" };
+export const metadata: Metadata = { title: "Cart · Kiln & Canvas" };
 
 export default async function CartPage() {
   const store = await cookies();
